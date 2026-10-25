@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DentalFlow v0.3 — проверка одонтограммы</title>
+<style>
+:root{--ink:#17343b;--muted:#71858a;--teal:#087f8c;--mint:#e6f6f4;--line:#e2ecec;--bg:#f4f8f8;--white:#fff;--orange:#ffb66e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+.app{max-width:1080px;margin:auto;min-height:100vh;display:grid;grid-template-columns:230px 1fr;background:var(--bg)}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:26px 16px;display:flex;flex-direction:column;gap:26px}
+.brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:-.5px}.logo{width:38px;height:38px;background:var(--teal);color:white;border-radius:13px;display:grid;place-items:center;font-size:22px}
+.nav{display:grid;gap:7px}.nav button{border:0;background:transparent;text-align:left;padding:12px;border-radius:12px;color:#5d747a;font-size:14px;cursor:pointer}.nav button.active,.nav button:hover{background:var(--mint);color:var(--teal);font-weight:700}
+.sidebar-note{margin-top:auto;background:#f0f8f7;border-radius:16px;padding:14px;font-size:12px;color:#547176}
+main{padding:28px;min-width:0}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px}.eyebrow{font-size:12px;color:var(--teal);font-weight:800;text-transform:uppercase;letter-spacing:1.2px}h1{margin:4px 0 0;font-size:28px;letter-spacing:-.8px}.date{color:var(--muted);font-size:13px}
+.btn{border:0;border-radius:12px;background:var(--teal);color:white;padding:11px 15px;font-weight:700;cursor:pointer}.btn.secondary{background:var(--mint);color:var(--teal)}.btn.small{padding:8px 11px;font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-bottom:22px}.stat{background:#fff;border:1px solid var(--line);border-radius:17px;padding:17px}.stat-top{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}.stat strong{display:block;font-size:27px;margin:10px 0 3px}.stat small{color:var(--teal);font-size:12px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:18px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.panel h2{font-size:17px;margin:0}.muted{color:var(--muted);font-size:13px}.toolbar{display:flex;gap:10px;margin-bottom:13px}.search{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px;font:inherit;outline-color:var(--teal)}
+table{border-collapse:collapse;width:100%;font-size:13px}th{text-align:left;color:var(--muted);font-weight:600;padding:10px 8px;border-bottom:1px solid var(--line)}td{padding:13px 8px;border-bottom:1px solid #eff3f3}tr:last-child td{border-bottom:0}.patient{display:flex;align-items:center;gap:10px}.avatar{width:34px;height:34px;flex-shrink:0;border-radius:12px;background:#e6f6f4;color:var(--teal);display:grid;place-items:center;font-weight:800}.pill{background:#e6f6f4;color:#087f8c;border-radius:20px;padding:5px 8px;font-size:11px;white-space:nowrap}.pill.orange{background:#fff1e3;color:#9c5b1e}
+.appointments{display:grid;gap:10px}.appt{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:13px;padding:12px}.time{font-weight:800;color:var(--teal);min-width:48px}.appt-info{flex:1}.appt-info b{display:block;font-size:13px}.appt-info span{font-size:12px;color:var(--muted)}
+.page{display:none}.page.active{display:block}.empty
+.chart-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.chart-grid{display:grid;grid-template-columns:repeat(16,minmax(24px,1fr));gap:5px;margin:12px 0}.tooth{min-width:0;border:1px solid #dbe7e7;border-radius:9px;background:#fff;color:var(--ink);padding:8px 2px;font-weight:800;font-size:12px;cursor:pointer;min-height:40px}.tooth:hover{border-color:var(--teal)}.tooth.selected{outline:2px solid var(--teal);outline-offset:1px}.tooth[data-status="caries"]{background:#ffe2df;border-color:#e77a70;color:#8d2c24}.tooth[data-status="treated"]{background:#dff2e5;border-color:#76b98a;color:#1b6940}.tooth[data-status="missing"]{background:#e7e9ed;border-color:#aab2bd;color:#515b68;text-decoration:line-through}.tooth[data-status="crown"]{background:#fff0d7;border-color:#e6b45d;color:#885d14}.tooth[data-status="endo"]{background:#e7e2ff;border-color:#a49adf;color:#4f429e}.tooth[data-status="watch"]{background:#dff2fb;border-color:#82c3df;color:#155b7b}.chart-label{font-size:12px;color:var(--muted);font-weight:700;margin-top:12px}.chart-editor{display:grid;grid-template-columns:140px 1fr;gap:16px;align-items:start}.selected-box{background:#f1f8f8;border-radius:14px;padding:14px}.legend{display:flex;gap:7px;flex-wrap:wrap}.legend span{font-size:11px;border-radius:20px;padding:5px 8px;background:#f0f3f4}.legend .l-caries{background:#ffe2df}.legend .l-treated{background:#dff2e5}.legend .l-missing{background:#e7e9ed}.legend .l-crown{background:#fff0d7}.legend .l-endo{background:#e7e2ff}.legend .l-watch{background:#dff2fb}.editor-fields{display:grid;gap:10px}.editor-fields label{font-size:12px;color:var(--muted);font-weight:700}.editor-fields select,.editor-fields textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit}.chart-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.empty{text-align:center;padding:25px;color:var(--muted)}
+.modal-back{position:fixed;inset:0;background:#102e3480;display:none;align-items:center;justify-content:center;padding:16px;z-index:10}.modal-back.show{display:flex}.modal{width:min(440px,100%);background:#fff;border-radius:20px;padding:22px;box-shadow:0 20px 70px #1233}.modal h2{margin:0 0 16px}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select,.field textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font:inherit}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#17343b;color:white;padding:11px 16px;border-radius:12px;display:none;z-index:20}
+@media(max-width:700px){.app{display:block}.sidebar{padding:13px 14px;border-right:0;border-bottom:1px solid var(--line);gap:10px}.brand{font-size:18px}.logo{width:32px;height:32px}.nav{display:flex;overflow:auto;gap:4px}.nav button{white-space:nowrap;padding:9px 11px}.sidebar-note{display:none}main{padding:18px 13px}.top{align-items:flex-start}.top h1{font-size:24px}.top .btn{font-size:12px;padding:10px}.cards{gap:8px}.stat{padding:12px}.stat strong{font-size:22px}.stat-top{font-size:10px}.stat small{font-size:10px}.panel{padding:13px}.table-wrap{overflow-x:auto}table{min-width:520px}.date{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">✚</div> DentalFlow</div>
+  <nav class="nav">
+    <button class="active" data-page="dashboard">▦ &nbsp; Обзор</button>
+    <button data-page="patients">♙ &nbsp; Пациенты</button>
+    <button data-page="appointments">◷ &nbsp; Приёмы</button>
+    <button data-page="plans">＋ &nbsp; Планы лечения</button>
+    <button data-page="chart">▦ &nbsp; Зубная формула</button>
+  </nav>
+  <div class="sidebar-note"><b>Демо-режим</b><br>Используйте только вымышленные данные. Прототип не предназначен для хранения реальных медицинских сведений.</div>
+</aside>
+<main>
+  <div class="top"><div><div class="eyebrow">Рабочее пространство</div><h1 id="pageTitle">Добрый день, доктор</h1><div class="date" id="today"></div></div><button class="btn" id="topAdd">＋ Новый пациент</button></div>
+  <section class="page active" id="dashboard">
+    <div class="cards">
+      <div class="stat"><div class="stat-top">Пациенты <span>♙</span></div><strong id="patientCount">3</strong><small>В демо-базе</small></div>
+      <div class="stat"><div class="stat-top">Приёмы сегодня <span>◷</span></div><strong id="apptCount">3</strong><small>Запланировано</small></div>
+      <div class="stat"><div class="stat-top">Планы лечения <span>＋</span></div><strong id="planCount">2</strong><small>В работе</small></div>
+    </div>
+    <div class="panel"><div class="panel-head"><h2>Ближайшие приёмы</h2><button class="btn secondary small" data-go="appointments">Все приёмы →</button></div><div class="appointments" id="dashAppts"></div></div>
+    <div class="panel"><div class="panel-head"><h2>Последние пациенты</h2><button class="btn secondary small" data-go="patients">Все пациенты →</button></div><div id="recentPatients"></div></div>
+  </section>
+  <section class="page" id="patients"><div class="panel"><div class="panel-head"><h2>База пациентов</h2><button class="btn small" id="addPatient">＋ Добавить</button></div><div class="toolbar"><input class="search" id="patientSearch" placeholder="Поиск по имени или телефону…"></div><div class="table-wrap"><table><thead><tr><th>Пациент</th><th>Телефон</th><th>Последний визит</th><th>Статус</th></tr></thead><tbody id="patientRows"></tbody></table></div></div></section>
+  <section class="page" id="appointments"><div class="panel"><div class="panel-head"><h2>Расписание приёмов</h2><button class="btn small" id="addAppointment">＋ Записать</button></div><div class="appointments" id="allAppts"></div></div></section>
+  <section class="page" id="plans"><div class="panel"><div class="panel-head"><h2>Планы лечения</h2><button class="btn small" id="addPlan">＋ Новый план</button></div><div id="plansList"></div></div></section>
+  <section class="page" id="chart">
+    <div class="panel">
+      <div class="panel-head"><div><h2>Интерактивная зубная формула</h2><div class="muted">Система FDI · v0.3 · выберите зуб, затем укажите состояние и сохраните</div></div></div>
+      <div class="chart-tools"><select class="search" id="chartPatient" aria-label="Пациент" style="max-width:300px"></select><select class="search" id="dentition" aria-label="Тип прикуса" style="max-width:220px"><option value="permanent">Постоянные зубы (11–48)</option><option value="primary">Молочные зубы (51–85)</option></select></div>
+      <div class="chart-label">ВЕРХНЯЯ ЧЕЛЮСТЬ</div><div id="upperTeeth" class="chart-grid"></div>
+      <div style="text-align:center;color:var(--muted);font-size:11px;margin:3px 0 8px">Правая сторона пациента ← · → Левая сторона пациента</div>
+      <div class="chart-label">НИЖНЯЯ ЧЕЛЮСТЬ</div><div id="lowerTeeth" class="chart-grid"></div>
+      <div class="legend"><span>Не отмечен</span><span class="l-caries">Кариес</span><span class="l-treated">Лечен</span><span class="l-missing">Отсутствует</span><span class="l-crown">Коронка</span><span class="l-endo">Эндодонтия</span><span class="l-watch">Наблюдение</span></div>
+    </div>
+    <div class="panel"><div class="chart-editor"><div class="selected-box"><div class="muted">Выбранный зуб</div><div id="selectedNumber" style="font-size:32px;font-weight:800;color:var(--teal);margin:5px 0">—</div><div class="muted" id="selectedToothName">Нажмите на зуб выше</div></div><div class="editor-fields"><div><label for="toothStatus">Состояние / отметка</label><select id="toothStatus"><option value="">Не отмечен</option><option value="caries">Кариес</option><option value="treated">Лечен</option><option value="missing">Отсутствует</option><option value="crown">Коронка</option><option value="endo">Эндодонтическое лечение</option><option value="watch">Наблюдение</option></select></div><div><label for="toothNote">Заметка врача</label><textarea id="toothNote" rows="3" placeholder="Диагноз, поверхность, лечение или комментарий…"></textarea></div><div class="chart-actions"><button class="btn" id="saveTooth">Сохранить отметку</button><button class="btn secondary" id="clearTooth">Очистить зуб</button></div><div class="muted">Запись привязана к выбранному пациенту в локальном прототипе. Статус не является автоматическим диагнозом.</div></div></div></div>
+  </section>
+</main>
+</div>
+<div class="modal-back" id="modalBack"><div class="modal"><h2 id="modalTitle">Новый пациент</h2><form id="modalForm"></form></div></div><div class="toast" id="toast"></div>
+<script>
+const demoPatients=[
+{id:1,name:"Анна Иванова",phone:"+90 555 010 20 30",last:"20.10.2026",status:"На лечении"},
+{id:2,name:"Марк Демир",phone:"+90 555 010 40 50",last:"18.10.2026",status:"Контроль"},
+{id:3,name:"Елена Кая",phone:"+90 555 010 60 70",last:"15.10.2026",status:"Новый пациент"}
+];
+const demoAppts=[
+{time:"09:30",name:"Анна Иванова",type:"Контроль после лечения",status:"Подтверждён"},
+{time:"11:00",name:"Марк Демир",type:"Профессиональная гигиена",status:"Подтверждён"},
+{time:"14:30",name:"Елена Кая",type:"Консультация",status:"Ожидает"}
+];
+let patients=JSON.parse(localStorage.getItem("df_patients")||"null")||demoPatients;
+let appts=JSON.parse(localStorage.getItem("df_appts")||"null")||demoAppts;
+let toothData=JSON.parse(localStorage.getItem("df_teeth")||"{}")||{};
+let selectedTooth=null;
+let plans=JSON.parse(localStorage.getItem("df_plans")||"null")||[
+{patient:"Анна Иванова",title:"Лечение кариеса",status:"В процессе"},
+{patient:"Марк Демир",title:"Профессиональная гигиена",status:"Запланирован"}
+];
+const $=s=>document.querySelector(s);
+function save(){localStorage.setItem("df_patients",JSON.stringify(patients));localStorage.setItem("df_appts",JSON.stringify(appts));localStorage.setItem("df_plans",JSON.stringify(plans));localStorage.setItem("df_teeth",JSON.stringify(toothData));}
+function initials(name){return name.split(" ").map(x=>x[0]).slice(0,2).join("").toUpperCase()}
+function patientCard(p){return `<div class="patient"><div class="avatar">${initials(p.name)}</div><div><b>${esc(p.name)}</b><div class="muted">${esc(p.phone)}</div></div></div>`}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function apptCard(a){return `<div class="appt"><div class="time">${esc(a.time)}</div><div class="appt-info"><b>${esc(a.name)}</b><span>${esc(a.type)}</span></div><span class="pill ${a.status==="Ожидает"?"orange":""}">${esc(a.status||"Запланирован")}</span></div>`}
+function render(){
+$("#patientCount").textContent=patients.length;$("#apptCount").textContent=appts.length;$("#planCount").textContent=plans.length;
+$("#dashAppts").innerHTML=appts.slice().sort((a,b)=>a.time.localeCompare(b.time)).slice(0,3).map(apptCard).join("")||'<div class="empty">Приёмов пока нет</div>';
+$("#allAppts").innerHTML=appts.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(apptCard).join("")||'<div class="empty">Приёмов пока нет</div>';
+$("#recentPatients").innerHTML=patients.slice(-3).reverse().map(p=>`<div style="padding:10px 0;border-bottom:1px solid #eff3f3">${patientCard(p)}</div>`).join("")||'<div class="empty">Добавьте первого пациента</div>';
+renderPatients();renderChartPatients();$("#plansList").innerHTML=plans.map(p=>`<div class="appt"><div class="avatar">＋</div><div class="appt-info"><b>${esc(p.title)}</b><span>${esc(p.patient)}</span></div><span class="pill">${esc(p.status)}</span></div>`).join("")||'<div class="empty">Планов лечения пока нет</div>';
+}
+function renderPatients(){const q=($("#patientSearch").value||"").toLowerCase();let list=patients.filter(p=>(p.name+" "+p.phone).toLowerCase().includes(q));$("#patientRows").innerHTML=list.map(p=>`<tr><td>${patientCard(p)}</td><td>${esc(p.phone)}</td><td>${esc(p.last||"—")}</td><td><span class="pill">${esc(p.status||"Новый")}</span></td></tr>`).join("")||'<tr><td colspan="4" class="empty">Ничего не найдено</td></tr>'}
+function go(page){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===page));document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));$("#pageTitle").textContent=({dashboard:"Добрый день, доктор",patients:"Пациенты",appointments:"Приёмы",plans:"Планы лечения",chart:"Зубная формула"})[page];$("#topAdd").style.display=page==="patients"?"none":"inline-block";if(page==="patients")$("#topAdd").style.display="inline-block";if(page==="appointments")$("#topAdd").textContent="＋ Записать";else $("#topAdd").textContent="＋ Новый пациент";}
+const permanent={upper:[18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28],lower:[48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38]};
+const primary={upper:[55,54,53,52,51,61,62,63,64,65],lower:[85,84,83,82,81,71,72,73,74,75]};
+const toothNames={1:"центральный резец",2:"боковой резец",3:"клык",4:"первый премоляр",5:"второй премоляр",6:"первый моляр",7:"второй моляр",8:"третий моляр"};
+const statusNames={caries:"Кариес",treated:"Лечен",missing:"Отсутствует",crown:"Коронка",endo:"Эндодонтическое лечение",watch:"Наблюдение"};
+function currentPatient(){return $("#chartPatient").value||""}
+function renderChartPatients(){
+  const el=$("#chartPatient"),old=el.value;
+  el.innerHTML=patients.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}</option>`).join("")||'<option value="">Сначала добавьте пациента</option>';
+  if([...el.options].some(o=>o.value===old))el.value=old;
+  const disabled=patients.length===0;
+  ["#toothStatus","#toothNote","#saveTooth","#clearTooth"].forEach(sel=>$(sel).disabled=disabled);
+}
+function toothLabel(n){let q=Number(String(n)[0]),pos=Number(String(n)[1]);let side=[1,4,5,8].includes(q)?"правая сторона пациента":"левая сторона пациента";let jaw=(q===1||q===2||q===5||q===6)?"верхняя челюсть":"нижняя челюсть";let primaryNames={1:"центральный резец",2:"боковой резец",3:"клык",4:"первый моляр",5:"второй моляр"};return `${jaw}, ${side}, ${(q>=5?primaryNames[pos]:toothNames[pos])||"зуб"}`}
+function renderTeeth(){
+  const dent=$("#dentition").value,arch=dent==="primary"?primary:permanent;
+  if(selectedTooth&&!arch.upper.concat(arch.lower).includes(selectedTooth)){selectedTooth=null;resetToothEditor();}
+  ["upper","lower"].forEach(j=>{
+    $("#"+j+"Teeth").innerHTML=arch[j].map(n=>{
+      const entry=((toothData[currentPatient()]||{})[n]||{});
+      const status=statusNames[entry.status]||"Не отмечен";
+      const label=`Зуб ${n}, ${toothLabel(n)}. ${status}`;
+      return `<button type="button" class="tooth ${selectedTooth===n?"selected":""}" data-tooth="${n}" data-status="${esc(entry.status||"")}" aria-label="${esc(label)}" aria-pressed="${selectedTooth===n}" title="${esc(label)}">${n}</button>`;
+    }).join("");
+  });
+  document.querySelectorAll(".tooth").forEach(b=>b.onclick=()=>selectTooth(Number(b.dataset.tooth)));
+}
+function selectTooth(n){
+  const arch=$("#dentition").value==="primary"?primary:permanent;
+  if(!arch.upper.concat(arch.lower).includes(n))return;
+  selectedTooth=n;
+  const entry=((toothData[currentPatient()]||{})[n]||{});
+  $("#selectedNumber").textContent=n;
+  $("#selectedToothName").textContent=toothLabel(n);
+  $("#toothStatus").value=statusNames[entry.status]?entry.status:"";
+  $("#toothNote").value=entry.note||"";
+  renderTeeth();
+}
+function resetToothEditor(){$("#selectedNumber").textContent="—";$("#selectedToothName").textContent=patients.length?"Нажмите на зуб выше":"Сначала добавьте пациента";$("#toothStatus").value="";$("#toothNote").value="";}
+$("#chartPatient").addEventListener("change",()=>{selectedTooth=null;resetToothEditor();renderTeeth()});$("#dentition").addEventListener("change",()=>{selectedTooth=null;resetToothEditor();renderTeeth()});
+$("#saveTooth").onclick=()=>{
+  if(!selectedTooth){showToast("Сначала выберите зуб");return}
+  const name=currentPatient();
+  if(!name||!patients.some(p=>p.name===name)){showToast("Сначала выберите пациента");return}
+  if(!toothData[name])toothData[name]={};
+  const status=$("#toothStatus").value,note=$("#toothNote").value.trim();
+  if(status&&!Object.prototype.hasOwnProperty.call(statusNames,status)){showToast("Неизвестный статус зуба");return}
+  if(!status&&!note)delete toothData[name][selectedTooth];
+  else toothData[name][selectedTooth]={status,note,updatedAt:new Date().toISOString()};
+  save();renderTeeth();showToast("Отметка зуба сохранена");
+};
+$("#clearTooth").onclick=()=>{
+  if(!selectedTooth){showToast("Сначала выберите зуб");return}
+  const name=currentPatient();
+  if(!name||!patients.some(p=>p.name===name)){showToast("Сначала выберите пациента");return}
+  if(toothData[name])delete toothData[name][selectedTooth];
+  save();resetToothEditor();renderTeeth();showToast("Отметка удалена");
+};
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+$("#patientSearch").addEventListener("input",renderPatients);
+function showToast(msg){let t=$("#toast");t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",2200)}
+function openModal(type){
+const back=$("#modalBack"),form=$("#modalForm");let fields="",title="";
+if(type==="patient"){title="Новый пациент";fields='<div class="field"><label>Имя и фамилия *</label><input name="name" required placeholder="Например, Алексей Иванов"></div><div class="field"><label>Телефон</label><input name="phone" placeholder="+90…"></div><div class="field"><label>Статус</label><select name="status"><option>Новый пациент</option><option>На лечении</option><option>Контроль</option></select></div>'}
+if(type==="appointment"){title="Новая запись";fields=`<div class="field"><label>Пациент *</label><select name="name" required>${patients.map(p=>`<option>${esc(p.name)}</option>`).join("")}</select></div><div class="field"><label>Время *</label><input name="time" type="time" required value="15:00"></div><div class="field"><label>Причина визита</label><input name="type" required placeholder="Например, консультация"></div><div class="field"><label>Статус</label><select name="status"><option>Подтверждён</option><option>Ожидает</option></select></div>`}
+if(type==="plan"){title="Новый план лечения";fields=`<div class="field"><label>Пациент *</label><select name="patient" required>${patients.map(p=>`<option>${esc(p.name)}</option>`).join("")}</select></div><div class="field"><label>Название плана *</label><input name="title" required placeholder="Например, лечение кариеса"></div><div class="field"><label>Статус</label><select name="status"><option>Запланирован</option><option>В процессе</option><option>Завершён</option></select></div>`}
+$("#modalTitle").textContent=title;form.innerHTML=fields+'<div class="modal-actions"><button type="button" class="btn secondary" id="cancelModal">Отмена</button><button class="btn" type="submit">Сохранить</button></div>';back.classList.add("show");$("#cancelModal").onclick=()=>back.classList.remove("show");
+form.onsubmit=e=>{e.preventDefault();let d=Object.fromEntries(new FormData(form).entries());if(type==="patient"){patients.push({id:Date.now(),name:d.name.trim(),phone:d.phone||"—",last:"—",status:d.status})}if(type==="appointment"){appts.push(d)}if(type==="plan"){plans.push(d)}save();render();back.classList.remove("show");showToast("Сохранено в этом браузере");};
+}
+$("#topAdd").onclick=()=>openModal(document.querySelector(".page.active").id==="appointments"?"appointment":"patient");$("#addPatient").onclick=()=>openModal("patient");$("#addAppointment").onclick=()=>openModal("appointment");$("#addPlan").onclick=()=>openModal("plan");
+$("#today").textContent=new Intl.DateTimeFormat("ru-RU",{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(new Date());
+render();renderTeeth();
+</script>
+</body></html>
